@@ -40,7 +40,7 @@ func getLinks(url string) ([]string, error) {
 	// Define regular expression to match URLs
 	// This pattern may not match all possible URLs, and might require some tweaks
 	// depending on the specific HTML content being processed.
-	urlPattern := `"https+:[^\s]*"`
+	urlPattern := `(?i)<a\s+(?:[^>]*?\s+)?href="([^"]*)"`
 	r := regexp.MustCompile(urlPattern)
 
 	var buf bytes.Buffer
