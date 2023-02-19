@@ -14,7 +14,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
       - name: Install dependencies
-        run: go mod download
+        run: go get -v -t -d ./repo
       - name: Run program
         run: go run main.go
 
