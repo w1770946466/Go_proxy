@@ -1,1 +1,2 @@
+go mod init Go_proxy
 golang.org/x/net/html
