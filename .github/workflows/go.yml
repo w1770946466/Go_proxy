@@ -14,7 +14,11 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
       - name: Install dependencies
-        run: go get -v -t -d ./repo
+        #run: go get -v -t -d ./repo
+        run: |
+          go mod init Go_proxy
+          go get golang.org/x/net/html
+        
       - name: Run program
         run: go run main.go
 
