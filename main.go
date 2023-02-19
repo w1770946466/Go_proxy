@@ -9,13 +9,14 @@ import (
 )
 
 func main() {
-	url := "https://t.me/s/wxdy666"
+	url := "https://example.com"
 	links, err := getLinks(url)
 	if err != nil {
 		fmt.Printf("Failed to retrieve %s: %v\n", url, err)
 		return
 	}
 
+	var base64Links []string
 	for _, link := range links {
 		body, err := getWebpageContent(link)
 		if err != nil {
@@ -23,11 +24,11 @@ func main() {
 			continue
 		}
 		if isBase64(string(body)) {
-			fmt.Printf("%s contains base64 encoded data\n", link)
-		} else {
-			fmt.Printf("%s does not contain base64 encoded data\n", link)
+			base64Links = append(base64Links, link)
 		}
 	}
+
+	fmt.Printf("Links containing base64-encoded data: %v\n", base64Links)
 }
 
 func getLinks(url string) ([]string, error) {
