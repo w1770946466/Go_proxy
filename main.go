@@ -9,7 +9,7 @@ import (
 )
 
 func main() {
-	url := "https://example.com"
+	url := "https://t.me/s/wxdy666"
 	links, err := getLinks(url)
 	if err != nil {
 		fmt.Printf("Failed to retrieve %s: %v\n", url, err)
