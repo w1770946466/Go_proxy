@@ -1,59 +1,90 @@
 package main
 
 import (
+	"bytes"
+	"encoding/base64"
 	"fmt"
-	"io"
 	"net/http"
-	"golang.org/x/net/html"
+	"regexp"
 )
 
 func main() {
-	resp, err := http.Get("https://t.me/s/masco899")
+	url := "https://example.com"
+	links, err := getLinks(url)
 	if err != nil {
-		fmt.Printf("http.Get() failed with '%s'\n", err)
-		return
-	}
-	defer resp.Body.Close()
-
-	links, err := ExtractLinks(resp.Body)
-	if err != nil {
-		fmt.Printf("ExtractLinks() failed with '%s'\n", err)
+		fmt.Printf("Failed to retrieve %s: %v\n", url, err)
 		return
 	}
 
 	for _, link := range links {
-		fmt.Println(link)
+		body, err := getWebpageContent(link)
+		if err != nil {
+			fmt.Printf("Failed to retrieve %s: %v\n", link, err)
+			continue
+		}
+		if isBase64(string(body)) {
+			fmt.Printf("%s contains base64 encoded data\n", link)
+		} else {
+			fmt.Printf("%s does not contain base64 encoded data\n", link)
+		}
 	}
 }
 
-// ExtractLinks returns all the href links found in the provided HTML body
-func ExtractLinks(body io.Reader) ([]string, error) {
-	links := []string{}
+func getLinks(url string) ([]string, error) {
+	resp, err := http.Get(url)
+	if err != nil {
+		return nil, fmt.Errorf("failed to retrieve %s: %v", url, err)
+	}
+	defer resp.Body.Close()
 
-	tokenizer := html.NewTokenizer(body)
+	// Define regular expression to match URLs
+	// This pattern may not match all possible URLs, and might require some tweaks
+	// depending on the specific HTML content being processed.
+	urlPattern := `(?i)<a\s+(?:[^>]*?\s+)?href="([^"]*)"`
+	r := regexp.MustCompile(urlPattern)
 
-	for {
-		tokenType := tokenizer.Next()
+	var buf bytes.Buffer
+	if _, err := buf.ReadFrom(resp.Body); err != nil {
+		return nil, fmt.Errorf("failed to read response body: %v", err)
+	}
 
-		switch tokenType {
-		case html.ErrorToken:
-			err := tokenizer.Err()
-			if err == io.EOF {
-				return links, nil
-			}
-			return nil, err
+	matches := r.FindAllStringSubmatch(buf.String(), -1)
 
-		case html.StartTagToken:
-			token := tokenizer.Token()
-			if token.Data != "a" {
-				continue
-			}
-
-			for _, attr := range token.Attr {
-				if attr.Key == "href" {
-					links = append(links, attr.Val)
-				}
-			}
+	// Extract URLs from matched substrings
+	var links []string
+	for _, match := range matches {
+		if len(match) >= 2 {
+			links = append(links, match[1])
 		}
 	}
+
+	return links, nil
+}
+
+func getWebpageContent(url string) ([]byte, error) {
+	resp, err := http.Get(url)
+	if err != nil {
+		return nil, fmt.Errorf("failed to retrieve %s: %v", url, err)
+	}
+	defer resp.Body.Close()
+
+	var buf bytes.Buffer
+	if _, err := buf.ReadFrom(resp.Body); err != nil {
+		return nil, fmt.Errorf("failed to read response body: %v", err)
+	}
+
+	return buf.Bytes(), nil
+}
+
+func isBase64(str string) bool {
+	decoded, err := base64.StdEncoding.DecodeString(str)
+	if err != nil {
+		return false
+	}
+	for _, b := range decoded {
+		if b > 127 {
+			return false
+		}
+	}
+	return true
 }
