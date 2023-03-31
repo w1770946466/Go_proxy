@@ -5,7 +5,6 @@ import (
     "bytes"
     "encoding/base64"
     "fmt"
-    "io/ioutil"
     "net/http"
     "regexp"
     "os"
