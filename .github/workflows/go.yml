@@ -20,12 +20,14 @@ jobs:
           go get golang.org/x/net/html
       - name: Run program
         run: go run main.go
-      - name: Push sub file
-        uses: EndBug/add-and-commit@v7
+      - name: commit changes
+        run: |                 
+          git config --local user.email '${{ secrets.EMAIL }}'
+          git config --local user.name '${{ secrets.NAME }}'
+          git pull origin main
+          git add ./sub
+      - name: push changes
+        uses:  ad-m/github-push-action@master
         with:
-          author_name: ${{ secrets.NAME }}
-          author_email: ${{ secrets.EMAIL }}
-          message: "Add links.sub"
-          add: "sub"
-          token: ${{ secrets.MY_GITHUB_TOKEN }}
+          branch: main
 
