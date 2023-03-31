@@ -26,6 +26,7 @@ jobs:
           git config --local user.name '${{ secrets.NAME }}'
           git pull origin main
           git add ./sub
+          git commit -m "$(date '+%Y-%m-%d %H:%M:%S') sub_merge_node"
       - name: push changes
         uses:  ad-m/github-push-action@master
         with:
