@@ -1,39 +1,51 @@
+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
+
+
 name: Extract Links
 
+# 触发条件
 on:
+  #push:
   workflow_dispatch:
-  push:
-    branches:
-      - main
+  schedule:
+    # - cron: '*/5 * * * *'
+    # 表达式生成  https://crontab.guru/
+    - cron: '05 */3 * * *'
+
 jobs:
-  extract-links:
+  deploy:
     runs-on: ubuntu-latest
     steps:
-      - name: Check out code
-        uses: actions/checkout@v2
-      - name: Setup Go
-        uses: actions/setup-go@v2
+    - name: Check out code
+      uses: actions/checkout@v2
+    - name: Setup Go
+      uses: actions/setup-go@v2
         with:
           go-version: 1.16
-      - name: Checkout code
-        uses: actions/checkout@v2
-      - name: Install dependencies
-        run: |
+    - name: 加载缓存
+      uses: actions/cache@v2
+      with:
+        path: ~/.cache/pip
+        key: ${{ runner.os }}-pip-${{ hashFiles('**/run_in_Actions/requirements.txt') }}
+        restore-keys: |
+          ${{ runner.os }}-pip-
+    - name: 设置时区
+      run: sudo timedatectl set-timezone 'Asia/Shanghai'
+    - name: 安装依赖
+      run: |
           go mod init Go_proxy
           go get golang.org/x/net/html
-
-      - name: Run program
-        run: go run main.go
-      - name: commit changes
-        run: |                 
-          git config --local user.email '${{ secrets.EMAIL }}'
-          git config --local user.name '${{ secrets.NAME }}'
-          git pull origin main
-          git add ./sub
-          git commit -m "$(date '+%Y-%m-%d %H:%M:%S') sub_merge_node"
-      - name: push changes
-        uses:  ad-m/github-push-action@master
-        with:
-          github_token: ${{ secrets.MY_GITHUB_TOKEN }}
-          branch: main
-
+    - name: 执行任务
+      run: go run main.go
+      
+    - name: 提交更改
+      run: |                 
+        git config --local user.email '${{ secrets.EMAIL }}'
+        git config --local user.name '${{ secrets.NAME }}'
+        git pull origin main
+        git add ./sub
+        git commit -m "$(date '+%Y-%m-%d %H:%M:%S') sub_merge_node"
+    - name: 推送更改
+      uses:  ad-m/github-push-action@master
+      with:
+        branch: main
