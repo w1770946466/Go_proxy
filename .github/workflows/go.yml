@@ -20,6 +20,13 @@ jobs:
         run: |
           go mod init Go_proxy
           go get golang.org/x/net/html
+      - name: load cache
+        uses: actions/cache@v2
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('**/run_in_Actions/requirements.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
       - name: Run program
         run: go run main.go
       - name: commit changes
