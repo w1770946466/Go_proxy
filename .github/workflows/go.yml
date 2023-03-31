@@ -27,5 +27,5 @@ jobs:
           author_email: ${{ secrets.EMAIL }}
           message: "Add links.sub"
           add: "links.sub"
-          token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.MY_GITHUB_TOKEN }}
 
