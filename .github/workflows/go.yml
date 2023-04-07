@@ -42,7 +42,4 @@ jobs:
         git pull origin main
         git add ./sub
         git commit -m "$(date '+%Y-%m-%d %H:%M:%S') sub_merge_node"
-    - name: 推送更改
-      uses:  ad-m/github-push-action@master
-      with:
-        branch: main
+        git push
