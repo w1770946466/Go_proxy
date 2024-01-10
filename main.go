@@ -11,7 +11,7 @@ import (
 )
 
 func main() {
-    url := "https://t.me/s/wxdy666"
+    url := "https://t.me/s/ZDYZ2"
     links, err := getLinks(url)
     if err != nil {
         fmt.Printf("Failed to retrieve %s: %v\n", url, err)
